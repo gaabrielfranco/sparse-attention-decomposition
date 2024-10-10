@@ -16,9 +16,9 @@ def contrib_ahs(prompt_id, layer, ah_idx, dest_token, src_token, contrib_sv_dest
     find the upstream attention heads that contribute up to the threshold to this ah's output for these two tokens 
     do this for both the source and the destination tokens
     '''
-    # conside all contributing singular vectors
+    # consider all contributing singular vectors
     mat = contrib_sv_dest[prompt_id, layer, ah_idx, dest_token, src_token]
-    # return the upstream attention heads that contribute up to the treshold 
+    # return the upstream attention heads that contribute up to the threshold 
     sorted_contribs = np.sort(np.ravel(mat))[::-1]
     thresh = attn_thresh * np.sum(np.ravel(mat))
     cutoff = sorted_contribs[np.where(np.cumsum(sorted_contribs) > thresh)[0][0]]
@@ -118,8 +118,7 @@ def label_edges(prompt_id, edges, idx_to_gram, remove_unlabeled = True):
     return ret_edges
 
 def add_new_edges_to_graph(G, edges, prompt_id):
-    # fixed to correct for multiple runs from different roots with the same prompt
-    # however the fix didn't change counts very much at all
+    # corrects for multiple runs from different roots with the same prompt
     for edge in edges:
         (layer, ah_idx, upstream_layer, upstream_ah_idx, src_token, dest_token, mag, type) = edge
         if type == 's':

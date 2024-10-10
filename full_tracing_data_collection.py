@@ -79,7 +79,7 @@ def full_tracing_data_collection():
                         contrib_src = np.zeros((layer, 12))
                         contrib_dest = np.zeros((layer, 12))
                         
-                        # look at each preceding attention head
+                        # look at each upstream attention head
                         for prev_layer in range(layer):
                             for prev_ah_idx in range(12):
                                 x_out = (
