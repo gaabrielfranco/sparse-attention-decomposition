@@ -21,7 +21,7 @@ See ```paper.ipynb```.
 python3 full_tracing_data_collection.py
 ```
 
-This script produces the file ```results.nms-p256-f1.0-folded-expandedO-scaled.pkl```, which is used for the next experiments and plots.
+This script produces the file ```results.nms-p256-f1.0-folded-expandedO-scaled.pkl```, which is used for the next experiments and plots. It also produces ```results.nms-p256-f1.0-folded-expandedO-scaled-all-svs.pkl```, which is the tracing using all SVs instead of a subset of them. This is used to produce the Figure 15 in the paper.
 
 ### Build the graphs
 

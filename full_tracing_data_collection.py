@@ -12,7 +12,7 @@ torch.set_grad_enabled(False)
 DB = namedtuple('DB', 'contrib_sv_src contrib_sv_dest sv_signs sv_mags svs_used')
 Params = namedtuple('Params', 'attn_thresh perc_contrib_thresh num_prompts')
 
-def full_tracing_data_collection():
+def full_tracing_data_collection(use_svs=True):
     # Loading the model with no processing (fold_ln, etc.)
     model = HookedTransformer.from_pretrained("gpt2-small", device="cpu")
 
@@ -62,7 +62,10 @@ def full_tracing_data_collection():
                         X = X_batch[prompt_id, :, :] #Float[Tensor, 'n_tokens d_model']
                         df = get_components_used(model, X, src_token, dest_token, layer, ah_idx, 
                                                 U[(layer, ah_idx)], S[(layer, ah_idx)], VT[(layer, ah_idx)])
-                        last_sv_idx = np.where(df['sv_perc_contribution'].values > perc_contrib_thresh)[0][0]
+                        if use_svs:
+                            last_sv_idx = np.where(df['sv_perc_contribution'].values > perc_contrib_thresh)[0][0]
+                        else:
+                            last_sv_idx = 63 # all SVs
                         svs = df.iloc[:last_sv_idx+1].idx.astype(int).values
                         # store the svs used
                         svs_used[prompt_id, layer, ah_idx, dest_token, src_token] = svs
@@ -95,11 +98,17 @@ def full_tracing_data_collection():
                         contrib_sv_dest[prompt_id, layer, ah_idx, dest_token, src_token] = contrib_dest
 
     # Save the results into a pickle file
-    filename = f'data/results.nms-p{num_prompts}-f{perc_contrib_thresh}-folded-expandedO-scaled.pkl'
+    if use_svs:
+        filename = f'data/results.nms-p{num_prompts}-f{perc_contrib_thresh}-folded-expandedO-scaled.pkl'
+    else:
+        filename = f'data/results.nms-p{num_prompts}-f{perc_contrib_thresh}-folded-expandedO-scaled-all-svs.pkl'
     with open(filename, 'wb') as fp:
         db = DB(contrib_sv_src, contrib_sv_dest, sv_signs, sv_mags, svs_used)
         params = Params(attn_thresh, perc_contrib_thresh, num_prompts)
         pickle.dump((db, params), fp)
 
 if __name__ == "__main__":
-    full_tracing_data_collection()
+    # print("Running full tracing data collection")
+    # full_tracing_data_collection(use_svs=True)
+    print("Running full tracing data collection with all SVs")
+    full_tracing_data_collection(use_svs=False)
